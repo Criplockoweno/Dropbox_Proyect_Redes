@@ -1,40 +1,46 @@
 import socket
 import threading
+from HTTPRequestHandler import HTTPRequestHandler
 
-HEADER=64
+HEADER=1024
 PORT=5053
 SERVER=socket.gethostbyname(socket.gethostname())
 ADDR=(SERVER,PORT)
 FORMAT='utf-8'
 DISCONNECT_MESSAGE="!DISCONNECT"
 
-server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-server.bind(ADDR)
-def handle_client(conn,addr):
+def handle_client(conn, addr):
+    
     print(f"[NEW CONNECTION]{addr} connected.")
-    connected=True
-    while connected:
-        msg_length=conn.recv(HEADER).decode(FORMAT)
-        if msg_length:
-            msg_length=int(msg_length)
-            msg=conn.recv(msg_length).decode(FORMAT)
-            if msg == DISCONNECT_MESSAGE:
-                connected=False
-            print(f"[{addr}]{msg}")
-        
+    while True:
+        # recibimos un mensaje de longitud maxima de 64 bytes
+        # y lo decodificamos en formato UTF-8
+        request = conn.recv(HEADER).decode(FORMAT)
+        if not request:
+            break
+        httpd = HTTPRequestHandler(request)
+        response = httpd.handle_request()
+        # Enviamos la respuesta HTTP al cliente
+        conn.sendall(response.encode(FORMAT))
+       
     conn.close()
-        
-        
-        
+
 def start():
+    
     server.listen()
     print(f"[LISTENING] Server is listening on {SERVER}")
     while True:
-        conn,addr=server.accept()
-        thread=threading.Thread(target=handle_client,args=(conn,addr))
+        # esperamos una conexion y cuando llegue la aceptamos
+        conn, addr = server.accept()
+        thread = threading.Thread(target = handle_client, args = (conn, addr))
         thread.start()
         print(f"[ACTIVE CONNECTIONS]= {threading.active_count()-1}")
-        
 
-print("Server is starting...")
-start()
+
+if __name__ == "__main__":
+    # creamos la instancia Socket
+    server=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # asignamos la direccion IP y el puerto al socket
+    server.bind(ADDR)
+    print("Server is starting...")
+    start()
