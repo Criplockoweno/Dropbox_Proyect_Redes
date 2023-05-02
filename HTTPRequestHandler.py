@@ -1,3 +1,5 @@
+from HTMLPreprocessing import HTMLPreprocessing
+
 class HTTPRequestHandler():
     
     def __init__(self, request):
@@ -24,7 +26,7 @@ class HTTPRequestHandler():
         
     def do_GET(self):
         with open("index.html", "r", encoding=self.FORMAT) as f:
-            html = f.read()
+            html = HTMLPreprocessing(f.read()).get_processed_html()
         response = ('HTTP/1.1 200 OK\r\n' 
             + 'Content-Type: text/html\r\n' 
             + 'Content-Length: {}\r\n'.format(len(html)) 
