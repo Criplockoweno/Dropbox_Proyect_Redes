@@ -59,7 +59,7 @@ class HTTPRequestHandler():
     
     def writeData(self):
         headers = self.parse_request(self.request)
-        with open(headers['filename'], "wb") as f:
+        with open('./files/' + headers['filename'], "wb") as f:
             f.write(headers['filedata'].encode(self.FORMAT))        
         response = "HTTP/1.1 200 OK\r\n\r\nFile writed successfully"
         return response
