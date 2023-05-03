@@ -7,6 +7,7 @@ class HTTPRequestHandler():
     def parse_request(self, request):
         headers = {}
         lines = request.split('\n')
+        print(lines)
 
         if(lines[0].find('----WebKitFormBoundary')!=-1):
             # Split the data by the boundary string
@@ -54,8 +55,11 @@ class HTTPRequestHandler():
         return response
     
     def do_POST(self):
-        response = "HTTP/1.1 200 OK\r\n\r\nFile uploaded successfully"
+        # response = ("HTTP/1.1 303\r\n"
+        #     + "Location: /")
+        response = "HTTP/1.1 303 See Other\r\nLocation: /\r\n\r\n"
         return response
+    
     
     def writeData(self):
         headers = self.parse_request(self.request)
