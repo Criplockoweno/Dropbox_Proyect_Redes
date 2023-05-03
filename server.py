@@ -2,7 +2,7 @@ import socket
 import threading
 from HTTPRequestHandler import HTTPRequestHandler
 
-HEADER=1024
+HEADER=4096
 PORT=5053
 SERVER=socket.gethostbyname(socket.gethostname())
 ADDR=(SERVER,PORT)
@@ -16,6 +16,7 @@ def handle_client(conn, addr):
         # recibimos un mensaje de longitud maxima de 64 bytes
         # y lo decodificamos en formato UTF-8
         request = conn.recv(HEADER).decode(FORMAT)
+        print(request)
         if not request:
             break
         httpd = HTTPRequestHandler(request)
