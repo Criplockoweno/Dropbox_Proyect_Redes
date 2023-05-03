@@ -9,7 +9,7 @@ class HTTPRequestHandler():
     def parse_request(self, request):
         headers = {}
         lines = request.split('\n')
-
+        print(lines)
         if(lines[0].find('----WebKitFormBoundary')!=-1):
             # Split the data by the boundary string
             parts = request.split('------WebKitFormBoundary')
