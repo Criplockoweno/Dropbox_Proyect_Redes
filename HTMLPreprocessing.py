@@ -8,19 +8,13 @@ class HTMLPreprocessing:
         
     def get_processed_html(self):
         return self.process_html()
-    
-    def encode_file_content(self, file_path):
-        with open(file_path, 'rb') as f:
-            content = f.read()
-            encoded_content = base64.b64encode(content).decode('utf-8')
-        return encoded_content
 
     def process_html(self):
         soup = BeautifulSoup(self.html, 'html.parser')
         file_manager = FileManager('./files')
         for filename in file_manager.get_files_on_directory():
             path, size, date = file_manager.get_file_data(filename)
-            encoded_content = self.encode_file_content(path)
+            encoded_content = file_manager.encode_file_content(path)
             list_file_html = self.get_file_html(filename, size, encoded_content, date)
             file_list_container = soup.find('div', {'id': 'filesList'})                
             file_list_container.append(BeautifulSoup(list_file_html, 'html.parser'))

@@ -16,7 +16,6 @@ def handle_client(conn, addr):
         # recibimos un mensaje de longitud maxima de 64 bytes
         # y lo decodificamos en formato UTF-8
         request = conn.recv(HEADER).decode(FORMAT)
-        print(request)
         if not request:
             break
         httpd = HTTPRequestHandler(request)

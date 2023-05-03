@@ -1,0 +1,2 @@
+Todos los lenguajes que utilizamos diariamente son de alto nivel como Python. 
+El lenguaje del ensamblador se le conoce como lenguaje de bajo nivel.

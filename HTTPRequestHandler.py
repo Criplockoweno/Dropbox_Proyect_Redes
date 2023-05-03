@@ -1,3 +1,4 @@
+from FileManager import FileManager
 from HTMLPreprocessing import HTMLPreprocessing
 
 class HTTPRequestHandler():
@@ -13,7 +14,6 @@ class HTTPRequestHandler():
         if(lines[0].find('----WebKitFormBoundary')!=-1):
             # Split the data by the boundary string
             parts = request.split('------WebKitFormBoundary')
-
             # Find the part that contains the file data
             for part in parts:
                 if 'Content-Disposition: form-data; name="myFile"' in part:
@@ -29,41 +29,39 @@ class HTTPRequestHandler():
                 if line.strip() != '':
                     key, value = line.split(': ')
                     headers[key] = value.strip()
-        
-
         return headers
 
-    
     def handle_request(self):
         headers = self.parse_request(self.request)
         response = ""
         if headers['Method'] == 'GET':
-            response = self.do_GET()
+            response = self.do_GET(headers)
         
         if headers['Method'] == 'POST':
-            response = self.do_POST()
+            response = self.do_POST(headers)
 
         if headers['Method'] == 'Webkit':
-            response = self.writeData()
+            response = self.handle_webkit_request(headers)
         return response
         
-    def do_GET(self):
-        with open("index.html", "r", encoding=self.FORMAT) as f:
-            html = HTMLPreprocessing(f.read()).get_processed_html()
-        response = ('HTTP/1.1 200 OK\r\n' 
-            + 'Content-Type: text/html\r\n' 
-            + 'Content-Length: {}\r\n'.format(len(html)) 
-            + '\r\n' + html)
-        return response
+    def do_GET(self, headers):
+        if headers['Path'] == '/':
+            with open("index.html", "r", encoding=self.FORMAT) as f:
+                html = HTMLPreprocessing(f.read()).get_processed_html()
+            response = ('HTTP/1.1 200 OK\r\n' 
+                + 'Content-Type: text/html\r\n' 
+                + 'Content-Length: {}\r\n'.format(len(html)) 
+                + '\r\n' + html)
+            return response
     
-    def do_POST(self):
-        response = "HTTP/1.1 303 See Other\r\nLocation: /\r\n\r\n"
-        return response
+    def do_POST(self, headers):
+        if headers['Path'] == '/upload':
+            response = "HTTP/1.1 303 See Other\r\nLocation: /\r\n\r\n"
+            return response
     
-    def writeData(self):
-        headers = self.parse_request(self.request)
-        with open('./files/' + headers['filename'], "wb") as f:
-            f.write(headers['filedata'].encode(self.FORMAT))        
+    def handle_webkit_request(self, headers):
+        file_manager = FileManager('./files')
+        file_manager.save_file_on_directory(headers['filename'], headers['filedata'])      
         response = "HTTP/1.1 200 OK\r\n\r\nFile writed successfully"
         return response
     
