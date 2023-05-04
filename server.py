@@ -1,12 +1,13 @@
 import socket
 import threading
 from HTTPRequestHandler import HTTPRequestHandler
+import re
 
 HEADER = 4096
 PORT = 5053
 SERVER = socket.gethostbyname(socket.gethostname())
 ADDR = (SERVER, PORT)
-FORMAT = 'utf-8'
+FORMAT = 'UTF-8'
 DISCONNECT_MESSAGE = "!DISCONNECT"
 
 
@@ -16,11 +17,20 @@ def handle_client(conn, addr):
     while True:
         # recibimos un mensaje de longitud maxima de 64 bytes
         # y lo decodificamos en formato UTF-8
-        request = conn.recv(HEADER).decode(FORMAT)
-        print(request)
+        request = conn.recv(HEADER)  # .decode(FORMAT)
+        print('Cabeceras')
+        headers = request.decode(FORMAT)
+        lines = headers.split('\n')
+        headers = {}
+        for line in lines[1:]:
+            if line.strip() != '':
+                key, value = line.split(': ')
+                headers[key] = value.strip()
+        if ('Content-Length' in headers):
+            print(headers['Content-Length'])
         if not request:
             break
-        httpd = HTTPRequestHandler(request)
+        httpd = HTTPRequestHandler(request.decode(FORMAT))
         response = httpd.handle_request()
         # Enviamos la respuesta HTTP al cliente
         # conn.sendall(response.encode(FORMAT))
