@@ -71,5 +71,5 @@ class HTTPRequestHandler():
             filename, filedata, content_type = self.handle_file_request(request, headers)
             file_manager = FileManager('./files/')
             file_manager.save_file_on_directory(filename, filedata, content_type)
-            response = "HTTP/1.1 303 See Other\r\nLocation: /\r\n\r\n"
+            response = "HTTP/1.1 301 Found\r\nLocation: /\r\n\r\n"
             return response

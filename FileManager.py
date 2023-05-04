@@ -38,7 +38,10 @@ class FileManager():
         return size_str
     
     def save_file_on_directory(self, file_name, file_data, file_type):
-        if (file_type == 'text/plain'):
+        if (file_type == ('text/plain' or 'text/html' or 'application/json')):
             with open(os.path.join(self.directory, file_name), 'w', encoding='utf-8') as f:
                 f.write(file_data.decode('utf-8'))
+        else:
+            with open(os.path.join(self.directory, file_name), 'wb') as f:
+                f.write(file_data)
  

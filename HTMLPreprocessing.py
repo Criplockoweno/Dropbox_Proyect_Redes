@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from FileManager import FileManager
-import base64
+
 class HTMLPreprocessing:
     
     def __init__(self, html):
