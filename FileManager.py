@@ -37,6 +37,8 @@ class FileManager():
         size_str = f"{size:.1f} {unit}"
         return size_str
     
-    def save_file_on_directory(self, file_name, file_data):
-        with open(os.path.join(self.directory, file_name), "wb") as f:
-            f.write(file_data.encode('utf-8'))  
+    def save_file_on_directory(self, file_name, file_data, file_type):
+        if (file_type == 'text/plain'):
+            with open(os.path.join(self.directory, file_name), 'w', encoding='utf-8') as f:
+                f.write(file_data.decode('utf-8'))
+ 

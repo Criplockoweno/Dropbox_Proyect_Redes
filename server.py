@@ -12,13 +12,14 @@ DISCONNECT_MESSAGE="!DISCONNECT"
 def handle_client(conn, addr):
     
     print(f"[NEW CONNECTION]{addr} connected.")
+    request = b''
     while True:
         # recibimos un mensaje de longitud maxima de 64 bytes
         # y lo decodificamos en formato UTF-8
-        request = conn.recv(HEADER).decode(FORMAT)
+        request = conn.recv(HEADER)
         if not request:
             break
-        httpd = HTTPRequestHandler(request)
+        httpd = HTTPRequestHandler(request, conn)
         response = httpd.handle_request()
         # Enviamos la respuesta HTTP al cliente
         conn.sendall(response.encode(FORMAT))

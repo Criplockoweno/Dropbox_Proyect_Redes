@@ -1,2 +1,56 @@
 Todos los lenguajes que utilizamos diariamente son de alto nivel como Python. 
 El lenguaje del ensamblador se le conoce como lenguaje de bajo nivel.
+
+El lenguaje de bajo nivel lleva algoritmos complejos que son entendibles para el ser
+humano.
+
+El lenguaje máquina es un lenguaje constituido por unos y ceros, el cual es el único
+que puede reconocer una máquina (computadora).
+
+FETCH: El program Counter recibe una dirección de memoria y envía el contenido al 
+  procesador.
+DECODE: El procesador recibe las instrucciones y crea campos; cada campo tiene un 
+  significado y entiende lo que debe hacer.
+EXECUTE: Ejecuta la instrucción.
+
+Para evitar que se programe solo en binario se crea una primera capa de abstracción.
+Se comenzaron a desarrollar un conjunto de instrucciones de todo lo que puede hacer
+el procesador. Las instrucciones son una representación de lo que se puede hacer en 
+binario. Este es el lenguaje ensamblador.
+
+Aún así, programar en lenguaje ensamblador sigue siendo complicado. Así que se creó
+otra capa abstracción como C++, Python o Java.
+
+Se puede optimizar un programa tanto en software como en hardware.
+
+Formas de acelerar un programa con hardware:
+  1. Bajar de nivel de abstracción: muchas veces en programación de alto nivel no se
+	pueden hacer modificaciones al código para que haga lo que necesitamos. En un
+	nivel más bajo de programación tenemos mucha más libertad. 
+
+Cómo se traduce de alto nivel a bajo nivel?
+Hay traductores de buena o mala calidad. Algunos usan IA. Aunque siempre se presentan
+problemas. El traductor debe encontrar un equivalente de lo que está escrito en alto 
+nivel en el lenguaje ensamblador.
+
+Set de instrucciones: es un conjunto de instrucciones en el procesador que especifica 
+las capacidades que puede realizar el computador. Gracias a estas instrucciones la pc
+sabe como ejecutar un proceso como la suma. Es posible añadir más capacidades al pc si
+es que estas son compatibles con las que ya estaban.
+
+Desventaja de instrucciones estándar:
+   - No explota las características del procesador más actual.
+Ventaja:
+   - Se puede usar en cualquier otro computador.
+
+Los sistemas embebidos son muy difíciles de acoplar a otro hardware del que estaba
+originalmente. Un procesador es un elemento programable, y solo puede realizar lo que 
+esté en el set de instrucciones. Cualquier instrucción de alto nivel hace uso de las 
+instrucciones de bajo nivel.
+
+El set de instrucciones del procesador se crea en base a la programación en hardware.
+Está implícito en el hardware, es decir, en los circuitos integrados del procesador.
+El procesador recibe bits, estos bits son analizados por el procesador, y acorde al
+conjunto de bits este ingresa a un pedazo de hardware para ejecutarse.
+
+Una instrucción es un conjunto de bits segmentados por campos.
