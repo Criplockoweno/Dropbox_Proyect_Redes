@@ -1,55 +1,67 @@
+from FileManager import FileManager
 from HTMLPreprocessing import HTMLPreprocessing
 from os.path import exists, getsize
 from urllib.parse import unquote
+import re
 
 
 class HTTPRequestHandler():
-
     saveFolder = './files/'
 
-    def __init__(self, request):
+    def __init__(self, request, conn):
         self.request = request
-        self.FORMAT = 'utf-8'
+        self.conn = conn
+        self.FORMAT = 'UTF-8'
+
+    def handle_chunked_request(self, request, content_length):
+        while content_length > 0:
+            chunk = self.conn.recv(4096)
+            content_length -= len(chunk)
+            request += chunk
+        return request
+
+    def handle_file_request(self, request, headers):
+        boundaries = '--' + \
+            re.search(r'boundary=([^;\\]+)', headers['Content-Type']).group(1)
+        request_body = request.split(b'\r\n\r\n', 1)[1]
+        start = request_body.find(boundaries.encode('utf-8')) + len(boundaries)
+        end = request_body.find(boundaries.encode('utf-8'), start)
+        bh, filedata = request_body[start:end].split(b'\r\n\r\n', 1)
+        bh = bh.decode('utf-8').split('\r\n')
+        body_headers = {}
+        for line in bh:
+            if line.strip() != '':
+                key, value = line.split(': ')
+                body_headers[key] = value.strip()
+        filename = re.search(
+            r'filename=([^;\\]+)', body_headers['Content-Disposition']).group(1).replace('"', '')
+        content_type = body_headers['Content-Type']
+        return filename, filedata, content_type
 
     def parse_request(self, request):
         headers = {}
-        lines = request.split('\n')
-        print(request)
-
-        if (lines[0].find('----WebKitFormBoundary') != -1):
-            # Split the data by the boundary string
-            parts = request.split('------WebKitFormBoundary')
-
-            # Find the part that contains the file data
-            for part in parts:
-                if 'Content-Disposition: form-data; name="myFile"' in part:
-                    # Extract the filename and file contents
-                    filename = part.split('filename="')[1].split('"')[0]
-                    filedata = part.split('\r\n\r\n')[1].split('\r\n------')[0]
-                    print(filedata)
-            headers.update({'Method': 'Webkit', 'Path': '/', 'Protocol': 'HTTP/1.1',
-                           'Content-Disposition': 'form-data', 'filename': filename, 'filedata': filedata})
-        else:
-            method, path, protocol = lines[0].split(" ")
-            headers.update(
-                {'Method': method, 'Path': path, 'Protocol': protocol})
-            for line in lines[1:]:
-                if line.strip() != '':
-                    key, value = line.split(': ')
-                    headers[key] = value.strip()
-
-        return headers
+        lines = request.decode('utf-8').split('\r\n')
+        method, path, protocol = lines[0].split(" ")
+        headers.update({'Method': method, 'Path': path, 'Protocol': protocol})
+        for line in lines[1:]:
+            if line.strip() != '':
+                key, value = line.split(': ')
+                headers[key] = value.strip()
+        if 'Content-Length' in headers:
+            request = self.handle_chunked_request(
+                request, int(headers['Content-Length']))
+        return headers, request
 
     def handle_request(self):
-        headers = self.parse_request(self.request)
+        headers, request = self.parse_request(self.request)
         response = ""
         print(headers['Method'])
         if headers['Method'] == 'GET':
             response = self.do_GET(headers['Path'])
 
         if headers['Method'] == 'POST':
-            # response = self.do_POST()
-            response = self.writeData()
+            response = self.do_POST(headers, request)
+            # response = self.writeData()
 
         if headers['Method'] == 'Webkit':
             response = self.writeData()
@@ -89,15 +101,19 @@ class HTTPRequestHandler():
 
         return response
 
-    def do_POST(self):
-        print('Metodo POST recibido')
-        print(self.request)
-        response = "HTTP/1.1 200 OK\r\nLocation: /\r\n\r\n"
-        return response
-
     def writeData(self):
         headers = self.parse_request(self.request)
         with open(self.saveFolder + headers['filename'], "wb") as f:
             f.write(headers['filedata'].encode(self.FORMAT))
         response = "HTTP/1.1 200 OK\r\n\r\nFile writed successfully"
         return response
+
+    def do_POST(self, headers, request):
+        if headers['Path'] == '/upload':
+            filename, filedata, content_type = self.handle_file_request(
+                request, headers)
+            file_manager = FileManager('./files/')
+            file_manager.save_file_on_directory(
+                filename, filedata, content_type)
+            response = "HTTP/1.1 301 Moved Permanently\r\nLocation: / \r\n\r\n"
+            return response
